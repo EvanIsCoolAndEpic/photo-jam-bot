@@ -4,18 +4,18 @@ My Discord photo tournament project. Right now I'm working on the rules: how pho
 
 ## Where I'm at
 
-The tournament logic is here, along with a small adapter for reading Discord reactions. There's no running bot in this repo yet: no commands, automatic posts, or saved tournaments. The demo runs a 21-photo tournament with made-up scores and votes.
+The tournament logic is here, along with a small adapter for reading Discord reactions. The test currently runs a 21-photo tournament with made-up scores and votes for flagging.
 
 I want the bracket to be predictable enough that I can explain why someone advanced. Getting that right matters more to me at this stage than adding commands around it.
 
 ## Rules I'm going with
 
-- Three judge scores per photo, each from 1–10. Total score decides seeding, then median. Exact ties get shuffled. I don't want submission order quietly deciding the bracket.
-- Better seeds get the byes. With 21 photos, that means five preliminary matches and 11 photos going straight through.
+- Three judge scores per photo, each from 1–10. Total score decides seeding, then median. Exact ties get shuffled (TODO: make fix).
+- Better seeds get the byes. With 21 photos (as an example), that means five preliminary matches and 11 photos going straight through.
 - Once the bracket is set, it stays set. Winners follow their branch; A/B placement can change without changing who they face.
-- One vote per person. React to both photos and neither vote counts. Bots and explicitly excluded voters don't count either. Raw reaction totals aren't enough.
+- One vote per person. React to both photos and neither vote counts. Bots and explicitly excluded voters don't count either.
 - A tied match goes to the better seed, including 0–0. That's the tiebreak I'm using for now.
-- A bad tally should fail the whole update. I don't want half a round changed because the last match had invalid data.
+- A bad tally should fail the whole update. I don't think this would happen but it'll just stop it so i can input the scores myself. wallahi that never happens.
 
 ## Run it
 
@@ -32,6 +32,4 @@ The tests live in `tests/`. They cover seeding, byes, duplicate votes, ties, inv
 
 That checks the rules locally. Running the whole thing in Discord is still work to do. `discord_votes.py` can tally A/B reaction users from a supplied message, but something still needs to connect to Discord and fetch that message.
 
-## Latest housekeeping
-
-Moved the test files into `tests/` so the root is easier to scan. The same test command still works.
+if you have better implementation send me a pull request.
