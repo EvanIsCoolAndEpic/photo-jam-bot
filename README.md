@@ -1,23 +1,37 @@
 # Photo Jam
 
-A compact reference implementation for my Discord photo tournament. Made in python 3.10
+My Discord photo tournament project. Right now I'm working on the rules: how photos get seeded, who plays who, and what actually counts as a vote. Python 3.10+.
 
-## Try it
+## Where I'm at
+
+The tournament logic is here, along with a small adapter for reading Discord reactions. There's no running bot in this repo yet: no commands, automatic posts, or saved tournaments. The demo runs a 21-photo tournament with made-up scores and votes.
+
+I want the bracket to be predictable enough that I can explain why someone advanced. Getting that right matters more to me at this stage than adding commands around it.
+
+## Rules I'm going with
+
+- Three judge scores per photo, each from 1–10. Total score decides seeding, then median. Exact ties get shuffled. I don't want submission order quietly deciding the bracket.
+- Better seeds get the byes. With 21 photos, that means five preliminary matches and 11 photos going straight through.
+- Once the bracket is set, it stays set. Winners follow their branch; A/B placement can change without changing who they face.
+- One vote per person. React to both photos and neither vote counts. Bots and explicitly excluded voters don't count either. Raw reaction totals aren't enough.
+- A tied match goes to the better seed, including 0–0. That's the tiebreak I'm using for now.
+- A bad tally should fail the whole update. I don't want half a round changed because the last match had invalid data.
+
+## Run it
 
 ```sh
 python demo.py
 python -m unittest -v
 ```
 
-only implemented currently for 16-round seeds.
+Run these from the repo root. The demo and tests use the standard library.
 
-- **Seeding:** sort by total judge score, then median. Shuffle before the stable sort to break exact ties. Preserve the resulting order throughout the tournament. O(n log n).
-- **Bracket:** pad to the next power of two and recursively reflect seed positions. The highest seeds receive byes; a 21-entry field has five played prelims and 11 direct qualifiers. O(n).
-- **Votes:** set subtraction removes duplicate identities, voters choosing both sides, and explicitly excluded voters. The Discord adapter also ignores bots. O(v).
-- **Results:** the larger tally wins; equal tallies, including 0–0, advance the better seed.
-- **State:** `ready → voting → closed → ready`, ending at `finished` after the final advancement. Each operation returns a new frozen state, so a rejected tally cannot partially change a round.
-- **Invariant:** an n-entry single-elimination tournament plays exactly n−1 matches. Tests check every size from 2 through 128 and verify each winner follows the correct branch.
+## What I've checked
 
-## Discord boundary
+The tests live in `tests/`. They cover seeding, byes, duplicate votes, ties, invalid tallies, and attempts to advance a round before it's ready. They also run complete tournaments for every entry count from 2 through 128, checking that winners stay on the right branch and that each tournament plays exactly one fewer match than it has entries.
 
-`discord_votes.tally(message)` reads a discord.py message's A/B reaction users and returns valid counts. It has no SDK import; the application that fetches the message supplies discord.py.
+That checks the rules locally. Running the whole thing in Discord is still work to do. `discord_votes.py` can tally A/B reaction users from a supplied message, but something still needs to connect to Discord and fetch that message.
+
+## Latest housekeeping
+
+Moved the test files into `tests/` so the root is easier to scan. The same test command still works.
